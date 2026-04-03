@@ -1,0 +1,37 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+
+-   repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.105.0
+    hooks:
+    -   id: terraform_fmt
+        args:
+            - --args=-recursive
+    -   id: terraform_tflint
+        args:
+            - --args=--call-module-type=all
+            - --args=--enable-rule=terraform_documented_variables
+    -   id: terraform_validate
+        args:
+            - --tf-init-args=-upgrade
+            - --tf-init-args=-lockfile=readonly
+
+-   repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v9.6.0
+    hooks:
+      - id: cspell
+      - id: cspell
+        name: check commit message spelling
+        args:
+          - --no-must-find-files
+          - --no-progress
+          - --no-summary
+          - --files
+          - .git/COMMIT_EDITMSG
+        stages: [commit-msg]
+        always_run: true
