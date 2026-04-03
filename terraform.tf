@@ -6,7 +6,7 @@ terraform {
     use_lockfile = true
     region       = "us-east-1"
     bucket       = "terraform-backend-501046919017-us-east-1-an"
-    key          = "terraform.tfstate"
+    key          = "jpeg-compression/terraform.tfstate"
   }
 
   required_providers {
