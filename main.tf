@@ -47,8 +47,6 @@ module "lambda" {
       ]
     }
   }
-
-  depends_on = [module.source_bucket, module.destination_bucket]
 }
 
 module "source_bucket" {
@@ -74,8 +72,6 @@ module "event_notification" {
       filter_suffix = ".jpg"
     }
   }
-
-  depends_on = [module.source_bucket, module.lambda]
 }
 
 module "destination_bucket" {
