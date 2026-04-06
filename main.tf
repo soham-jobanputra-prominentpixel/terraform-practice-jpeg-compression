@@ -13,10 +13,16 @@ module "lambda" {
   description   = "Processes jpeg images from source bucket and puts it to destination bucket."
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.14"
+  memory_size   = 1024
+  timeout       = 15
 
   create_package          = false
-  local_existing_package  = "./dummy-function.zip"
+  local_existing_package  = "./lambda_function.zip"
   ignore_source_code_hash = true
+
+  layers = [
+    "arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p314-Pillow:1"
+  ]
 
   attach_policy_statements = true
   policy_statements = {
@@ -26,14 +32,26 @@ module "lambda" {
         "s3:GetObject"
       ]
       resources = [
-        "${module.bucket.s3_bucket_arn}/*"
+        "${module.source_bucket.s3_bucket_arn}/*"
+      ]
+    }
+
+    DestinationBucket = {
+      effect = "Allow"
+      actions = [
+        "s3:GetObject",
+        "s3:PutObject"
+      ]
+      resources = [
+        "${module.destination_bucket.s3_bucket_arn}/*"
       ]
     }
   }
+
+  depends_on = [module.source_bucket, module.destination_bucket]
 }
 
-
-module "bucket" {
+module "source_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 5.12.0"
 
@@ -42,12 +60,11 @@ module "bucket" {
   force_destroy    = true
 }
 
-
 module "event_notification" {
   source  = "terraform-aws-modules/s3-bucket/aws//modules/notification"
   version = "~> 5.12.0"
 
-  bucket = module.bucket.s3_bucket_id
+  bucket = module.source_bucket.s3_bucket_id
 
   lambda_notifications = {
     main = {
@@ -57,4 +74,15 @@ module "event_notification" {
       filter_suffix = ".jpg"
     }
   }
+
+  depends_on = [module.source_bucket, module.lambda]
+}
+
+module "destination_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 5.12.0"
+
+  bucket           = format("image-processor-destination-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
+  bucket_namespace = "account-regional"
+  force_destroy    = true
 }
