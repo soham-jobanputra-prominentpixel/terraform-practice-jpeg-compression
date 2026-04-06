@@ -2,7 +2,7 @@ terraform {
   required_version = "~>1.14.7"
 
   backend "s3" {
-    profile      = "TerraformBackend"
+    profile      = var.remote_backend_aws_profile
     use_lockfile = true
     region       = "us-east-1"
     bucket       = "terraform-backend-501046919017-us-east-1-an"

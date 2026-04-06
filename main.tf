@@ -1,5 +1,6 @@
 provider "aws" {
-  region = "us-east-1"
+  region  = var.region
+  profile = var.aws_profile
 }
 
 data "aws_caller_identity" "current" {}
@@ -9,7 +10,7 @@ module "lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "~> 8.7.0"
 
-  function_name = "image-processor"
+  function_name = var.lambda_function_name
   description   = "Processes jpeg images from source bucket and puts it to destination bucket."
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.14"
@@ -53,7 +54,7 @@ module "source_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 5.12.0"
 
-  bucket           = format("image-processor-source-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
+  bucket           = format("${var.source_bucket_name}-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
   bucket_namespace = "account-regional"
   force_destroy    = true
 }
@@ -78,7 +79,7 @@ module "destination_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 5.12.0"
 
-  bucket           = format("image-processor-destination-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
+  bucket           = format("${var.destination_bucket_name}-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
   bucket_namespace = "account-regional"
   force_destroy    = true
 }
