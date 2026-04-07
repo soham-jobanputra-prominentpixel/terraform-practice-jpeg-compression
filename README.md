@@ -4,12 +4,19 @@ A terraform configuration for an Image Compressor Pipeline involving a source bu
 
 ![architecture image](./docs/architecture.jpg)
 
+## Usage
+
+- Clone the repo: `git clone https://github.com/soham-jobanputra-prominentpixel/terraform-practice-jpeg-compression .`
+- Setup the AWS credentials for "Admin" profile and "TerraformBackend" profile: `aws configure --profile="Admin"` and `aws configure --profile="TerraformBackend"`
+- Initialize terraform: `terraform init`
+- Plan and apply: `terraform apply`
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~>1.14.7 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.14.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.39.0 |
 
 ## Providers
@@ -23,9 +30,8 @@ A terraform configuration for an Image Compressor Pipeline involving a source bu
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_lambda"></a> [lambda](#module\_lambda) | terraform-aws-modules/lambda/aws | ~> 8.7.0 |
-| <a name="module_source_bucket"></a> [source\_bucket](#module\_source\_bucket) | terraform-aws-modules/s3-bucket/aws | ~> 5.12.0 |
+| <a name="module_bucket"></a> [bucket](#module\_bucket) | terraform-aws-modules/s3-bucket/aws | ~> 5.12.0 |
 | <a name="module_event_notification"></a> [event\_notification](#module\_event\_notification) | terraform-aws-modules/s3-bucket/aws//modules/notification | ~> 5.12.0 |
-| <a name="module_destination_bucket"></a> [destination\_bucket](#module\_destination\_bucket) | terraform-aws-modules/s3-bucket/aws | ~> 5.12.0 |
 
 ## Resources
 
@@ -38,12 +44,11 @@ A terraform configuration for an Image Compressor Pipeline involving a source bu
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | The credentials profile used to manage resources | `string` | n/a | yes |
-| <a name="input_remote_backend_aws_profile"></a> [remote\_backend\_aws\_profile](#input\_remote\_backend\_aws\_profile) | The credentials profile used to manage remote backend | `string` | n/a | yes |
-| <a name="input_source_bucket_name"></a> [source\_bucket\_name](#input\_source\_bucket\_name) | Source bucket name will be formatted according to your account regional namespace name. e.g.: 'amzn-s3-demo-bucket' -> 'amzn-s3-demo-bucket-111122223333-us-west-2-an' | `string` | n/a | yes |
-| <a name="input_destination_bucket_name"></a> [destination\_bucket\_name](#input\_destination\_bucket\_name) | Destination bucket name will be formatted according to your account regional namespace name. e.g.: 'amzn-s3-demo-bucket' is converted to 'amzn-s3-demo-bucket-111122223333-us-west-2-an' | `string` | n/a | yes |
+| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | The credentials profile used to provision resources | `string` | n/a | yes |
+| <a name="input_source_bucket_name"></a> [source\_bucket\_name](#input\_source\_bucket\_name) | Source bucket name will be formatted according to account regional namespace name. e.g.: 'amzn-s3-demo-bucket' -> 'amzn-s3-demo-bucket-111122223333-us-west-2-an' | `string` | n/a | yes |
+| <a name="input_destination_bucket_name"></a> [destination\_bucket\_name](#input\_destination\_bucket\_name) | Destination bucket name will be formatted according to account regional namespace name. e.g.: 'amzn-s3-demo-bucket' is converted to 'amzn-s3-demo-bucket-111122223333-us-west-2-an' | `string` | n/a | yes |
 | <a name="input_lambda_function_name"></a> [lambda\_function\_name](#input\_lambda\_function\_name) | Name for the image processing lambda function | `string` | n/a | yes |
-| <a name="input_region"></a> [region](#input\_region) | AWS region to create resources at | `string` | `"us-east-1"` | no |
+| <a name="input_region"></a> [region](#input\_region) | AWS region to create resources at | `string` | n/a | yes |
 
 ## Outputs
 
