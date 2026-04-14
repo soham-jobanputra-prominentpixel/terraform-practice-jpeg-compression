@@ -44,12 +44,12 @@ jobs:
 
       # used to preserve the file permissions
       - name: Compress With Tar
-        run: tar -cvf planned-terraform-config.tar.gz -C "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE"
+        run: tar -cvf planned-terraform-config.tar -C "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE"
 
       - name: Build Artifact
         uses: actions/upload-artifact@v7
         with:
-          path: planned-terraform-config.tar.gz
+          path: planned-terraform-config.tar
           if-no-files-found: error
           retention-days: 1
           overwrite: true
@@ -65,10 +65,10 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v8
         with:
-          name: planned-terraform-config.tar.gz
+          name: planned-terraform-config.tar
 
       - name: Extract Artifact
-        run: tar -xvf planned-terraform-config.tar.gz -C "$GITHUB_WORKSPACE"
+        run: tar -xvf planned-terraform-config.tar
 
       - name: Configure AWS Credentials for Resource Provisioning
         uses: aws-actions/configure-aws-credentials@v6.1.0
@@ -82,7 +82,11 @@ jobs:
             terraform_version: "1.14.7"
 
       - name: Terraform Init
-        run: terraform init -input=false
+        run: |
+          pwd
+          echo "$GITHUB_WORKSPACE"
+          ls -lahi
+          terraform init -input=false
 
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
