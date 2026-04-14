@@ -1,4 +1,4 @@
-name: Manual Workflow Starter
+name: Provision AWS Resources
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ env:
 jobs:
   terraform-plan:
     name: Terraform Plan
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
