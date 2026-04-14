@@ -1,0 +1,45 @@
+name: Manual Workflow Starter
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_IN_AUTOMATION: true
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials for S3 Backend
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformS3Backend
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+            terraform_version: "1.14.7"
+
+      - name: Terraform Init
+        run: |
+            terraform init -input=false
+
+      - name: Configure AWS Credentials for Resource Provisioning
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
+          aws-region: us-east-1
+
+      - name: Terraform Plan
+        run:
+            terraform plan -out=tfplan -input=false
+
+      - run: echo ${{ steps.plan.outputs.stdout }}
+      - run: echo ${{ steps.plan.outputs.stderr }}
+      - run: echo ${{ steps.plan.outputs.exitcode }}

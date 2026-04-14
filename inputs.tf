@@ -1,8 +1,3 @@
-variable "aws_profile" {
-  description = "The credentials profile used to provision resources"
-  type        = string
-}
-
 variable "source_bucket_name" {
   description = "Source bucket name will be formatted according to account regional namespace name. e.g.: 'amzn-s3-demo-bucket' -> 'amzn-s3-demo-bucket-111122223333-us-west-2-an'"
   type        = string
