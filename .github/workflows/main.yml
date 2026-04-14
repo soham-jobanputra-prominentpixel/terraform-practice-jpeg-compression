@@ -49,12 +49,10 @@ jobs:
       - name: Build Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: planned-terraform-configuration
           path: planned-terraform-config.tar.gz
           if-no-files-found: error
           retention-days: 1
           overwrite: true
-          compression-level: 0
           archive: false
 
   terraform-apply:
@@ -67,7 +65,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v8
         with:
-          name: planned-terraform-configuration
+          name: planned-terraform-config.tar.gz
 
       - name: Extract Artifact
         run: tar -xvf planned-terraform-config.tar.gz -C "$GITHUB_WORKSPACE"
