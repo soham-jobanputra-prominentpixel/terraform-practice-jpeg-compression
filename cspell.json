@@ -4,6 +4,7 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "cvzf",
         "EDITMSG",
         "exitcode",
         "Klayers",
@@ -12,7 +13,8 @@
         "tflint",
         "tfstate",
         "tfvars",
-        "venv"
+        "venv",
+        "xzvf"
     ],
     "ignoreWords": [],
     "import": []

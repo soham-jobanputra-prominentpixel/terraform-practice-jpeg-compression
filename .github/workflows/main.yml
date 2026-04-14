@@ -40,22 +40,22 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Plan
-        run: |
-          echo $GITHUB_WORKSPACE
-          pwd
-          ls -lahi
-          terraform plan -out=tfplan -input=false
+        run: terraform plan -out=tfplan -input=false
+
+      # used to preserve the file permissions
+      - name: Compress With Tar
+        run: tar -cvzf planned-terraform-config.tar.gz -C "$GITHUB_WORKSPACE"
 
       - name: Build Artifact
         uses: actions/upload-artifact@v7
         with:
           name: planned-terraform-configuration
-          path: .
-          include-hidden-files: true
+          path: planned-terraform-config.tar.gz
           if-no-files-found: error
           retention-days: 1
           overwrite: true
-          compression-level: 9
+          compression-level: 0
+          archive: false
 
   terraform-apply:
     name: Terraform Apply
@@ -64,10 +64,13 @@ jobs:
     environment: TRAINING
 
     steps:
-      - name: Install Artifact
+      - name: Download Artifact
         uses: actions/download-artifact@v8
         with:
           name: planned-terraform-configuration
+
+      - name: Extract Artifact
+        run: tar -xzvf planned-terraform-config.tar.gz -C "$GITHUB_WORKSPACE"
 
       - name: Configure AWS Credentials for Resource Provisioning
         uses: aws-actions/configure-aws-credentials@v6.1.0
@@ -80,9 +83,8 @@ jobs:
         with:
             terraform_version: "1.14.7"
 
+      - name: Terraform Init
+        run: terraform init -input=false
+
       - name: Terraform Apply
-        run: |
-          echo $GITHUB_WORKSPACE
-          pwd
-          ls -lahi
-          terraform apply -input=false tfplan
+        run: terraform apply -input=false tfplan
