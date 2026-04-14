@@ -8,6 +8,7 @@ env:
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
   terraform-plan:
@@ -30,8 +31,7 @@ jobs:
             terraform_version: "1.14.7"
 
       - name: Terraform Init
-        run: |
-            terraform init -input=false
+        run: terraform init -input=false
 
       - name: Configure AWS Credentials for Resource Provisioning
         uses: aws-actions/configure-aws-credentials@v6.1.0
@@ -40,7 +40,11 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -input=false
+        run: |
+          echo $GITHUB_WORKSPACE
+          pwd
+          ls -lahi
+          terraform plan -out=tfplan -input=false
 
       - name: Build Artifact
         uses: actions/upload-artifact@v7
@@ -51,8 +55,10 @@ jobs:
           if-no-files-found: error
           retention-days: 1
           overwrite: true
+          compression-level: 9
 
   terraform-apply:
+    name: Terraform Apply
     needs: terraform-plan
     runs-on: ubuntu-latest
     environment: TRAINING
@@ -75,4 +81,8 @@ jobs:
             terraform_version: "1.14.7"
 
       - name: Terraform Apply
-        run: terraform apply -input=false tfplan
+        run: |
+          echo $GITHUB_WORKSPACE
+          pwd
+          ls -lahi
+          terraform apply -input=false tfplan
