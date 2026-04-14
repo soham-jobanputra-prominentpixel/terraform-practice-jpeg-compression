@@ -40,9 +40,39 @@ jobs:
           aws-region: us-east-1
 
       - name: Terraform Plan
-        run:
-            terraform plan -out=tfplan -input=false
+        run: terraform plan -out=tfplan -input=false
 
-      - run: echo ${{ steps.plan.outputs.stdout }}
-      - run: echo ${{ steps.plan.outputs.stderr }}
-      - run: echo ${{ steps.plan.outputs.exitcode }}
+      - name: Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: planned-terraform-configuration
+          path: .
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  terraform-apply:
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    environment: TRAINING
+
+    steps:
+      - name: Install Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: planned-terraform-configuration
+
+      - name: Configure AWS Credentials for Resource Provisioning
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+            terraform_version: "1.14.7"
+
+      - name: Terraform Apply
+        run: terraform apply -input=false tfplan
