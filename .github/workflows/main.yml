@@ -49,6 +49,7 @@ jobs:
       - name: Build Artifact
         uses: actions/upload-artifact@v7
         with:
+          name: planned-terraform-configuration
           path: planned-terraform-config.tar
           if-no-files-found: error
           retention-days: 1
@@ -65,7 +66,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v8
         with:
-          name: planned-terraform-config.tar
+          name: planned-terraform-configuration
 
       - name: Extract Artifact
         run: tar -xvf planned-terraform-config.tar
