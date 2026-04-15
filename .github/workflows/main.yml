@@ -53,7 +53,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
           overwrite: true
-          archive: false
+          compression-level: 9
 
   terraform-apply:
     name: Terraform Apply
@@ -82,11 +82,7 @@ jobs:
             terraform_version: "1.14.7"
 
       - name: Terraform Init
-        run: |
-          pwd
-          echo "$GITHUB_WORKSPACE"
-          ls -lahi
-          terraform init -input=false
+        run: terraform init -input=false
 
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
