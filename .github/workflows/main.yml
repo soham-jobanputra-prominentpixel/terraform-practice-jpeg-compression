@@ -19,25 +19,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Configure AWS Credentials for S3 Backend
-        uses: aws-actions/configure-aws-credentials@v6.1.0
-        with:
-          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformS3Backend
-          aws-region: us-east-1
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
             terraform_version: "1.14.7"
 
-      - name: Terraform Init
-        run: terraform init -input=false
-
-      - name: Configure AWS Credentials for Resource Provisioning
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
           role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
           aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init -input=false
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -input=false
@@ -71,16 +65,16 @@ jobs:
       - name: Extract Artifact
         run: tar -xvf planned-terraform-config.tar
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+            terraform_version: "1.14.7"
+
       - name: Configure AWS Credentials for Resource Provisioning
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
           role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
           aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
-        with:
-            terraform_version: "1.14.7"
 
       - name: Terraform Init
         run: terraform init -input=false
