@@ -1,0 +1,83 @@
+name: Deprovision AWS Resources
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_IN_AUTOMATION: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+            terraform_version: "1.14.7"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Plan
+        run: terraform plan -destroy -out=destroy.tfplan -input=false
+
+      # used to preserve the file permissions
+      - name: Compress With Tar
+        run: tar -cvf planned-terraform-config.tar .
+
+      - name: Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: planned-terraform-configuration
+          path: planned-terraform-config.tar
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+          compression-level: 9
+
+  terraform-apply:
+    name: Terraform Apply
+    needs: terraform-plan
+    runs-on: ubuntu-latest
+    environment: TRAINING
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: planned-terraform-configuration
+
+      - name: Extract Artifact
+        run: tar -xvf planned-terraform-config.tar
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+            terraform_version: "1.14.7"
+
+      - name: Configure AWS Credentials for Resource Provisioning
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::501046919017:role/GithubActionsTerraformAdmin
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Apply
+        run: terraform apply -input=false destroy.tfplan
